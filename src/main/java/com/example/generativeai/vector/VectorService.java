@@ -117,13 +117,13 @@ public class VectorService {
     public Message getSystemMessage(List<Document> similarDocuments) {
         String documents = similarDocuments
                 .stream()
-                .map(Document::getContent)
+                .map(Document::getText)
                 .collect(Collectors.joining(System.lineSeparator()));
 
         SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(systemPrompt);
 
         Message systemMessage = systemPromptTemplate.createMessage(Map.of("documents", documents));
-        log.info("systemMessageContent: {}", systemMessage.getContent());
+        log.info("systemMessageContent: {}", systemMessage.getText());
 
         return systemMessage;
     }

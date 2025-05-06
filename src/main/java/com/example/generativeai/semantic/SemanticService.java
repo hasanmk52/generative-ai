@@ -55,6 +55,6 @@ public class SemanticService {
 
         Prompt prompt = promptTemplate.create();
 
-        return beanOutputConverter.convert(chatModel.call(prompt).getResult().getOutput().getContent());
+        return beanOutputConverter.convert(chatModel.call(prompt).getResult().getOutput().getText());
     }
 }

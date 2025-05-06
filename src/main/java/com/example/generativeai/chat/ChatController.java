@@ -12,7 +12,7 @@ public class ChatController {
 
     @GetMapping("/prompt")
     public String generateResponse(@RequestParam String category, String year){
-        return chatService.gentChatResponse(category, year).getResult().getOutput().getContent();
+        return chatService.gentChatResponse(category, year).getResult().getOutput().getText();
     }
 
     @GetMapping("/generate-image")

@@ -16,7 +16,7 @@ public class WeatherController {
     @GetMapping("/query") //query here can be "What's the temperature in London ?"
     public Map<String, String> getWeatherDetails(@RequestParam String query) {
         return Map.of("response",
-                chatService.getWeatherInfo(query).getResult().getOutput().getContent()
+                chatService.getWeatherInfo(query).getResult().getOutput().getText()
         );
     }
 

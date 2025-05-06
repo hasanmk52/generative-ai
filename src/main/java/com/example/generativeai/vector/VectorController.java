@@ -2,7 +2,7 @@ package com.example.generativeai.vector;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
@@ -31,7 +31,7 @@ public class VectorController {
     //The query param here for example can be: Spring AI
     @GetMapping("/gen")
     public String genVectorSearch(@RequestParam String query) {
-        return vectorService.simpleVector(query).getFirst().getContent();
+        return vectorService.simpleVector(query).getFirst().getText();
     }
 
     //The query param here for example can be : I am looking for an e-bike. Which bike would be good for me?
@@ -44,14 +44,14 @@ public class VectorController {
     //The query param here for example can be : What did the author do while growing up ?
     @GetMapping("/text/v1/query")
     public String getQueryRespV1(@RequestParam String query) {
-        return vectorService.getQueryDocs(query).getFirst().getContent().toString();
+        return vectorService.getQueryDocs(query).getFirst().getText();
         //return vectorService.getQueryDocs(query);
 
     }
 
     @GetMapping("/text/v2/query")
     public String getQueryRespV2(@RequestParam String query) {
-        return vectorService.getQueryDocsSR(query).getFirst().getContent().toString();
+        return vectorService.getQueryDocsSR(query).getFirst().getText();
     }
 
     @GetMapping("/text/v3/query")
@@ -63,7 +63,7 @@ public class VectorController {
 
         Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
 
-        return Map.of("response", chatModel.call(prompt).getResult().getOutput().getContent());
+        return Map.of("response", chatModel.call(prompt).getResult().getOutput().getText());
     }
 
     @GetMapping("/text/v4/query")
