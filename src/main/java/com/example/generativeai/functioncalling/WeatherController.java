@@ -11,7 +11,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WeatherController {
 
-    private ChatService chatService;
+    private final ChatService chatService;
 
     @GetMapping("/query") //query here can be "What's the temperature in London ?"
     public Map<String, String> getWeatherDetails(@RequestParam String query) {

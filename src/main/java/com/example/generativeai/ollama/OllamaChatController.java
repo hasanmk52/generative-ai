@@ -17,7 +17,7 @@ import java.util.Map;
 public class OllamaChatController {
 
     private final OllamaChatService ollamaChatService;
-    private final @Qualifier("basicChatClient") ChatClient basicChatClient;
+    private final @Qualifier("ollamaChatClient") ChatClient chatClient;
 
     @GetMapping("/chat")
     public String getResponse(@RequestParam String category, String year){
@@ -34,11 +34,12 @@ public class OllamaChatController {
         return ollamaChatService.getMultiModalResponse();
     }
 
+    //Here query can be 'What did the author do while growing up ?'
     @GetMapping("/text/query")
     public Map<String, String> getQueryResp(@RequestParam String query) {
         VectorStore vectorStore = ollamaChatService.loadDataInVectorStore();
 
-        return Map.of("response", basicChatClient.prompt()
+        return Map.of("response", chatClient.prompt()
                 .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.builder().similarityThresholdAll().topK(4).build()))
                 .user(query)
                 .call()

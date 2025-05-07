@@ -1,12 +1,13 @@
 package com.example.generativeai.config;
 
+import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SafeGuardAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
-import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,13 +20,18 @@ public class ChatConfig {
 
     @Bean
     @Primary
-    public ChatModel chatModel(OpenAiChatModel openAiChatModel) {
-        return openAiChatModel;
+    public ChatClient openAIChatClient(OpenAiChatModel chatModel) {
+        return ChatClient.create(chatModel);
     }
 
     @Bean
-    public ChatClient basicChatClient(ChatClient.Builder builder) {
-        return builder.build();
+    public ChatClient ollamaChatClient(OllamaChatModel chatModel) {
+        return ChatClient.create(chatModel);
+    }
+
+    @Bean
+    public ChatClient anthropicChatClient(AnthropicChatModel chatModel) {
+        return ChatClient.create(chatModel);
     }
 
     @Bean
@@ -34,12 +40,14 @@ public class ChatConfig {
     }
 
     @Bean
-    public ChatClient advancedChatClient(ChatClient.Builder builder, ChatMemory chatMemory) {
-        return builder
+    public ChatClient advancedChatClient(OpenAiChatModel chatModel, ChatMemory chatMemory) {
+        return ChatClient.builder(chatModel)
                 .defaultSystem("You are a helpful travelling assistant.")
                 .defaultAdvisors(
                         new MessageChatMemoryAdvisor(chatMemory),
-                        new SafeGuardAdvisor(List.of("illegal", "smuggling", "weapons", "drugs")),
+                        SafeGuardAdvisor.builder()
+                                .sensitiveWords(List.of("illegal", "smuggling", "weapons", "drugs"))
+                                .build(),
                         new SimpleLoggerAdvisor()
                 )
                 .build();

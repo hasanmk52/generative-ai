@@ -1,12 +1,12 @@
 package com.example.generativeai.ollama;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.content.Media;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.reader.TextReader;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OllamaChatService {
 
-    private final OllamaChatModel chatModel;
+    private final @Qualifier("ollamaChatClient") ChatClient chatClient;
     private final @Qualifier("ollamaVectorStore") VectorStore ollamaVectorStore;
 
     @Value("classpath:/data/story.txt")
@@ -46,7 +46,7 @@ public class OllamaChatService {
 
         Prompt prompt = promptTemplate.create();
 
-        return chatModel.call(prompt).getResult().getOutput().getText();
+        return chatClient.prompt(prompt).call().content();
     }
 
 
@@ -64,7 +64,7 @@ public class OllamaChatService {
 
         Prompt prompt = promptTemplate.create();
 
-        return chatModel.call(prompt).getResult().getOutput().getText();
+        return chatClient.prompt(prompt).call().content();
     }
 
     // multimodal - read images
@@ -75,7 +75,7 @@ public class OllamaChatService {
                 List.of(Media.builder().mimeType(MimeTypeUtils.IMAGE_PNG).data(imageData).build())
         );
 
-        return chatModel.call(new Prompt(userMessage)).getResult().getOutput().getText();
+        return chatClient.prompt(new Prompt(userMessage)).call().content();
     }
 
     public VectorStore loadDataInVectorStore() {

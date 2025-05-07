@@ -1,13 +1,14 @@
 package com.example.generativeai.chat;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.content.Media;
 import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final ChatModel chatModel;
+    private final @Qualifier("openAIChatClient") ChatClient chatClient;
 
     public ChatResponse gentChatResponse(String category, String year) {
 
@@ -37,7 +38,7 @@ public class ChatService {
 
         Prompt prompt = promptTemplate.create();
 
-        return chatModel.call(prompt);
+        return chatClient.prompt(prompt).call().chatResponse();
     }
 
     public String getImageChatReader(String query) {
@@ -47,16 +48,15 @@ public class ChatService {
                 List.of(new Media(MimeTypeUtils.IMAGE_PNG, resource)));
 
 
-        var response = chatModel.call(new Prompt(userMessage));
+        var response = chatClient.prompt(new Prompt(userMessage)).call().chatResponse();
         return response.getResult().getOutput().getText();
     }
 
     public ChatResponse getWeatherInfo(String query) {
 
-        UserMessage userMessage = new UserMessage(query);
+        Prompt prompt = new Prompt(new UserMessage(query),
+                OpenAiChatOptions.builder().function("currentWeather").build());
 
-        return chatModel.call(new Prompt((userMessage),
-                OpenAiChatOptions.builder().function("currentWeather").build()));
-
+        return chatClient.prompt(prompt).call().chatResponse();
     }
 }

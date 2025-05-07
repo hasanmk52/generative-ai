@@ -2,10 +2,11 @@ package com.example.generativeai.semantic;
 
 import com.example.generativeai.dto.SemanticOutput;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.converter.BeanOutputConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SemanticService {
 
-    private final ChatModel chatModel;
+    private final @Qualifier("openAIChatClient") ChatClient chatClient;
 
     public List<SemanticOutput> getSemanticMatch(final List<String> sourceList, List<String> destinationList) {
 
@@ -55,6 +56,6 @@ public class SemanticService {
 
         Prompt prompt = promptTemplate.create();
 
-        return beanOutputConverter.convert(chatModel.call(prompt).getResult().getOutput().getText());
+        return beanOutputConverter.convert(chatClient.prompt(prompt).call().content());
     }
 }

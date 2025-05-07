@@ -5,7 +5,6 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
@@ -25,8 +24,7 @@ import java.util.Map;
 public class VectorController {
 
     private final VectorService vectorService;
-    private final ChatModel chatModel;
-    private final @Qualifier("basicChatClient") ChatClient basicChatClient;
+    private final @Qualifier("openAIChatClient") ChatClient chatClient;
 
     //The query param here for example can be: Spring AI
     @GetMapping("/gen")
@@ -63,14 +61,14 @@ public class VectorController {
 
         Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
 
-        return Map.of("response", chatModel.call(prompt).getResult().getOutput().getText());
+        return Map.of("response", chatClient.prompt(prompt).call().content());
     }
 
     @GetMapping("/text/v4/query")
     public Map<String, String> getQueryRespV4(@RequestParam String query) {
         VectorStore vectorStore = vectorService.loadDataInVectorStore();
 
-        return Map.of("response", basicChatClient.prompt()
+        return Map.of("response", chatClient.prompt()
                 .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.builder().similarityThresholdAll().topK(4).build()))
                 .user(query)
                 .call()
